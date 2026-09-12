@@ -2,17 +2,24 @@
 
 > **SOC / Blue Team portfolio project:** built and validated an end-to-end Microsoft Sentinel detection for repeated failed Entra ID sign-ins.
 
+| Recruiter snapshot | Details |
+|---|---|
+| Role focus | SOC Analyst · Blue Team · Detection Engineering |
+| Core tools | Microsoft Sentinel · Microsoft Entra ID · Azure · Log Analytics · KQL |
+| Outcome | Validated telemetry-to-incident pipeline using controlled failed-sign-in activity |
+| Evidence | Detection query, alert configuration, incident screenshot, and repeatable triage workflow |
+
 ## What this project proves
 
 - Configuring Entra ID diagnostic settings and validating log ingestion in Log Analytics
 - Writing and deploying a scheduled KQL analytics rule in Microsoft Sentinel
 - Mapping account and IP entities for faster investigation
 - Generating and reviewing a security incident from controlled test activity
-- Applying basic detection-engineering thinking: scope, threshold, severity, tuning, and documentation
+- Applying detection-engineering thinking: scope, threshold, severity, tuning, and documentation
 
 ## Detection use case
 
-**Objective:** identify repeated failed Entra ID sign-ins from the same user and IP address that may indicate password spraying, brute force, or credential-stuffing behavior.
+**Objective:** identify repeated failed Entra ID sign-ins from the same user and IP address that may indicate password spraying, brute-force, or credential-stuffing behavior.
 
 **Data source:** `SigninLogs` forwarded from Microsoft Entra ID to a dedicated Log Analytics workspace.
 
@@ -27,24 +34,19 @@
 | Severity | Medium |
 | Entity mapping | Account: `UserPrincipalName`; IP: `IPAddress` |
 | Incident creation | Enabled |
-| ATT&CK context | Credential Access / Initial Access |
+| ATT&CK context | Brute Force: Password Guessing |
 
 > This is a lab threshold, not a production baseline. A production deployment should tune exclusions, alert grouping, suppression, and thresholds against normal user behavior.
 
 ## Architecture
 
-```
-Microsoft Entra ID
-        ↓
-Diagnostic settings (SigninLogs / AuditLogs)
-        ↓
-Log Analytics workspace
-        ↓
-Microsoft Sentinel
-        ↓
-Scheduled KQL analytics rule
-        ↓
-Alert and security incident
+```mermaid
+flowchart TD
+    A["Microsoft Entra ID"] --> B["Diagnostic settings<br/>SigninLogs + AuditLogs"]
+    B --> C["Log Analytics workspace"]
+    C --> D["Microsoft Sentinel"]
+    D --> E["Scheduled KQL analytics rule"]
+    E --> F["Alert and security incident"]
 ```
 
 ## Implementation and validation
@@ -88,7 +90,11 @@ A non-privileged test account generated repeated failed sign-ins. Sentinel creat
 
 ![Generated incident](screenshots/13-incident-generated.png)
 
-See the [incident walkthrough](docs/incident-walkthrough.md) for the analyst validation process.
+## Analyst workflow
+
+- Read the [detection brief](docs/detection-brief.md) for the use case, validation plan, ATT&CK context, and tuning notes.
+- Follow the [analyst triage checklist](docs/analyst-triage-checklist.md) to scope, investigate, and document an alert.
+- See the [incident walkthrough](docs/incident-walkthrough.md) for the controlled validation process.
 
 ## Skills demonstrated
 
