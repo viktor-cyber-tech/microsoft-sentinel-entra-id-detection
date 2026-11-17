@@ -6,7 +6,7 @@ A non-privileged lab test account generated repeated failed sign-in attempts. Th
 
 ## Analyst validation flow
 
-1. Open the incident and confirm that it originated from the **Entra ID Failed Sign-In Detection** scheduled analytics rule.
+1. Open the incident and confirm that it originated from the **Multiple Failed Entra ID Sign-ins** scheduled analytics rule.
 2. Review the mapped account and IP entities.
 3. Verify that the alert contains at least three failed sign-ins for the same user and IP within the configured 10-minute bin.
 4. Query `SigninLogs` for the affected user and source IP to understand the surrounding authentication activity.

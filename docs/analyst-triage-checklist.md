@@ -1,6 +1,6 @@
 # Analyst Triage Checklist
 
-Use this checklist as a repeatable starting point when the **Entra ID Failed Sign-In Detection** creates an incident.
+Use this checklist as a repeatable starting point when the **Multiple Failed Entra ID Sign-ins** creates an incident.
 
 ## Scope the alert
 
