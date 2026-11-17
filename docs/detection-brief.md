@@ -12,22 +12,22 @@ Detect repeated failed Microsoft Entra ID sign-ins from the same account and sou
 
 ## Detection logic
 
-The scheduled KQL rule looks back 30 minutes, groups failed sign-ins by account, IP address, and a 10-minute time bin, then alerts at three or more failures.
+The scheduled KQL rule (**Multiple Failed Entra ID Sign-ins**) runs every 5 minutes with a 5-minute lookback, groups failed sign-ins by account, IP address, and a 10-minute time bin, then alerts at three or more failures.
 
 | Setting | Lab value | Rationale |
 |---|---:|---|
 | Query frequency | 5 minutes | Provides regular coverage for a scheduled lab rule |
-| Lookback window | 30 minutes | Captures a short burst across several runs |
+| Lookback window | 5 minutes | Rule scheduling setting; bounds the query's `ago(30m)` filter to the most recent 5 minutes |
 | Threshold | 3 failed attempts | Low threshold for controlled validation; not a production baseline |
 | Severity | Medium | Requires analyst review, but does not prove compromise |
 | Entity mapping | Account and IP address | Gives the analyst an investigation starting point |
+| Alert grouping | Disabled | Lab setting; see tuning notes |
 
 ## ATT&CK context
 
 | Tactic | Technique | Why it applies |
 |---|---|---|
-| Credential Access | OS Credential Dumping does **not** apply | This project does not collect credential dumping telemetry |
-| Credential Access / Initial Access | Brute Force: Password Guessing | Repeated failed authentication may indicate attempted password guessing |
+| Credential Access | T1110.001 Brute Force: Password Guessing | Repeated failed authentication may indicate attempted password guessing |
 
 > The ATT&CK mapping is contextual, not an attribution. A failed-sign-in pattern alone does not prove malicious intent.
 

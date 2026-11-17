@@ -27,14 +27,16 @@
 
 | Configuration | Value |
 |---|---|
+| Rule name | Multiple Failed Entra ID Sign-ins |
 | Rule type | Scheduled query |
-| Lookback | 30 minutes |
+| Lookback (rule scheduling) | 5 minutes |
 | Query frequency | Every 5 minutes |
 | Threshold | 3 failed attempts |
 | Severity | Medium |
 | Entity mapping | Account: `UserPrincipalName`; IP: `IPAddress` |
 | Incident creation | Enabled |
-| ATT&CK context | Brute Force: Password Guessing |
+| Alert grouping | Disabled (lab) |
+| ATT&CK context | Credential Access — T1110.001 Brute Force: Password Guessing |
 
 > This is a lab threshold, not a production baseline. A production deployment should tune exclusions, alert grouping, suppression, and thresholds against normal user behavior.
 
@@ -55,7 +57,7 @@ flowchart TD
 
 - Verified the intended Azure tenant and subscription.
 - Applied Contributor permissions at the subscription scope for resource deployment.
-- Created a dedicated Log Analytics workspace and enabled Microsoft Sentinel.
+- Created a dedicated Log Analytics workspace (`law-sentinel-lab`) and enabled Microsoft Sentinel.
 
 ![Tenant validation](screenshots/01-tenant-verification.png)
 ![Log Analytics workspace](screenshots/03-log-analytics-workspace-deployed.png)
@@ -79,10 +81,13 @@ SigninLogs
 
 The rule aggregates failed sign-ins by user, source IP, and 10-minute window. It then alerts once the threshold is met.
 
+> The rule's scheduling lookback is 5 minutes, so each run only evaluates the last 5 minutes of data even though the query contains `ago(30m)`. The scheduling setting is what bounds the query window.
+
 ![Analytics rule configuration](screenshots/08-analytics-rule-general.png)
 ![KQL query](screenshots/09-analytics-rule-kql.png)
 ![Entity mapping](screenshots/10-entity-mapping.png)
 ![Incident settings](screenshots/11-incident-settings.png)
+![Rule enabled](screenshots/12-rule-enabled.png)
 
 ### 4. Controlled test and incident validation
 
@@ -104,6 +109,7 @@ Microsoft Sentinel · Microsoft Entra ID · Azure RBAC · Log Analytics · KQL �
 
 - Sentinel scheduled analytics rules are not real-time detections.
 - Explicit time filtering matters for KQL performance and predictable results.
+- The rule's scheduling lookback overrides a longer `ago()` filter in the query, so documentation should state the scheduled value.
 - RBAC and managed-identity permissions can block otherwise correct deployments.
 - Controlled testing with non-administrative accounts reduces the risk of accidental lockouts.
 - A working rule still needs tuning before it is useful in production.
