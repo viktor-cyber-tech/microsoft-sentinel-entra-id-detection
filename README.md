@@ -81,7 +81,23 @@ SigninLogs
 
 The rule aggregates failed sign-ins by user, source IP, and 10-minute window. It then alerts once the threshold is met.
 
+```kql
+SigninLogs
+| where TimeGenerated > ago(30m)
+| where ResultType != 0
+| summarize FailedAttempts = count() by UserPrincipalName, IPAddress, bin(TimeGenerated, 10m)
+| where FailedAttempts >= 3
+```
+
+| Line | What it does |
+|---|---|
+| `where ResultType != 0` | Keeps only failed sign-ins (`0` = success in `SigninLogs`) |
+| `summarize ... by UserPrincipalName, IPAddress, bin(...)` | Counts failures per user, per source IP, per 10-minute bucket |
+| `where FailedAttempts >= 3` | Alert threshold, kept low so the lab test triggers reliably |
+
 > The rule's scheduling lookback is 5 minutes, so each run only evaluates the last 5 minutes of data even though the query contains `ago(30m)`. The scheduling setting is what bounds the query window.
+
+**Window trade-off:** because each run only sees 5 minutes of data, the 10-minute `bin()` never fills completely within one run. Failures that land on either side of a run boundary (for example, 2 in one run and 2 in the next) can be split and miss the threshold. For the controlled test this was acceptable. A production version should lengthen the lookback to match the bin (for example, 10-minute lookback every 5 minutes) and use alert suppression to avoid duplicate incidents from the overlap.
 
 ![Analytics rule configuration](screenshots/08-analytics-rule-general.png)
 ![KQL query](screenshots/09-analytics-rule-kql.png)
@@ -117,6 +133,9 @@ Microsoft Sentinel · Microsoft Entra ID · Azure RBAC · Log Analytics · KQL �
 ## Next improvements
 
 - Add alert grouping and suppression to reduce repeated incident creation from overlapping lookback windows.
+- Align the lookback with the 10-minute aggregation window so failures that span two runs are not split.
+- Add a password-spraying variant (T1110.003) that groups by source IP across many users instead of per user.
+- Record test metrics (failed attempts generated, time to alert, false positives over a baseline period).
 - Add detections for risky sign-ins and anomalous locations.
 - Build a Sentinel workbook for authentication trends and investigation context.
 - Integrate Microsoft Defender telemetry and document cross-source triage.
